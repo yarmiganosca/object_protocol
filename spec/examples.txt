@@ -1,0 +1,10 @@
+example_id                                             | status | run_time        |
+------------------------------------------------------ | ------ | --------------- |
+./spec/object_protocol/execution_spec.rb[1:1]          | passed | 0.00587 seconds |
+./spec/object_protocol/rspec_matchers_spec.rb[1:1:1:1] | passed | 0.00937 seconds |
+./spec/object_protocol/rspec_matchers_spec.rb[1:1:2:1] | passed | 0.00797 seconds |
+./spec/object_protocol/rspec_matchers_spec.rb[1:1:3:1] | passed | 0.01574 seconds |
+./spec/object_protocol/version_spec.rb[1:1]            | passed | 0.00046 seconds |
+./spec/object_protocol_spec.rb[1:1:1]                  | passed | 0.00594 seconds |
+./spec/object_protocol_spec.rb[1:1:2]                  | passed | 0.00445 seconds |
+./spec/object_protocol_spec.rb[1:1:3]                  | passed | 0.00476 seconds |
