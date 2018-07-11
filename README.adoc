@@ -1,8 +1,89 @@
 = ObjectProtocol
+:ext-relative: .adoc
+:source-highlighter: coderay
+:sectanchors:
+:linkattrs:
+:toc: left
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/object_protocol`. To experiment with that code, run `bin/console` for an interactive prompt.
+== Goals
 
-TODO: Delete this and the text above, and describe your gem
+. Write message expectation tests with less boilerplate than when using RSpec spies
+. Resulting protocols should be usable as documentation
+. Be able to specify which object sent the message and which object received it (traditional message expectation test only allow the latter)
+
+== What's An Object Protocol?
+
+Protocols are the types of an OO program. They structure and order the messages passed between communicating agents.
+
+== Using Object Protocols
+
+=== A Simple Logger
+
+Given a unrealistically simple logger:
+[source,ruby]
+----
+class UnrealisticLogger
+  def initialize(device)
+    @device = device
+  end
+
+  def log(message)
+    @device << message
+  end
+
+  def rotate
+    @device.shift
+  end
+end
+----
+
+we can write a protocol for what happens when we call `#log` on an instance of `UnrealisticLogger`
+
+[source.ruby]
+----
+UnrealisticLoggingProtocol = ObjectProtocol.new(:device, :logger) do # <1>
+  logger.sends(:<<).to(device) # <2>
+end
+----
+<1> we need to tell the protocol the names of the participants
+<2> we switch to using local variables here instead of the symbols
+
+Then, we can test this protocol:
+
+[source,ruby]
+----
+require 'object_protocol/rspec'
+
+RSpec.describe UnrealisticLoggingProtocol do
+  it "is satisfied by calling #log on the logger" do
+    device = []
+    logger = UnrealisticLogger.new(device) # <1>
+
+    UnrealisticLoggingProtocol.bind( # <2>
+      device: device,
+      logger: logger,
+    )
+
+    expect(UnrealisticLoggingProtocol).to be_satisfied_by do
+      logger.log("message") # <3>
+    end
+  end
+end
+----
+<1> instantiate the participants
+<2> bind participants to the protocol
+<3> test an execution against the protocol
+
+Ok, but what was all that?
+
+Well, we created a protocol that we can use as documentation, and tested it with a lot less fanfare and boilerplate than you'd need with traditional message expectation tests!
 
 == Installation
 
@@ -17,19 +98,15 @@ And then execute:
 
 [source,shell]
 ----
-    $ bundle
+$ bundle
 ----
 
 Or install it yourself as:
 
 [source,shell]
 ----
-    $ gem install object_protocol
+$ gem install object_protocol
 ----
-
-== Usage
-
-TODO: Write usage instructions here
 
 == Development
 
