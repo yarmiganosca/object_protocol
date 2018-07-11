@@ -1,14 +1,14 @@
 require 'forwardable'
 
 class ObjectProtocol
-  class SatisfiableStep
+  class MessageExpectation
     extend Forwardable
 
-    delegate %i(sender receiver message arguments arguments_specified?) => :@step
+    delegate %i(sender receiver message arguments arguments_specified?) => :@expected_message
 
-    def initialize(protocol:, step:)
-      @protocol = protocol
-      @step     = step
+    def initialize(protocol:, expected_message:)
+      @protocol         = protocol
+      @expected_message = expected_message
 
       @satisfied = false
     end

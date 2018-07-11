@@ -1,4 +1,4 @@
-require 'object_protocol/step'
+require 'object_protocol/expected_message'
 
 class ObjectProtocol
   class StandIn
@@ -10,8 +10,8 @@ class ObjectProtocol
     end
 
     def sends(message)
-      Step.new(sender: self, message: message).tap do |step|
-        protocol.steps << step
+      ExpectedMessage.new(sender: self, message: message).tap do |expected_message|
+        protocol.expected_messages << expected_message
       end
     end
 

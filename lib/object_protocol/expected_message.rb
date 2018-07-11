@@ -1,5 +1,5 @@
 class ObjectProtocol
-  class Step
+  class ExpectedMessage
     attr_reader :sender, :message, :receiver, :arguments
 
     def initialize(sender:, message:)
@@ -24,7 +24,7 @@ class ObjectProtocol
     end
 
     def inspect
-      "<Step[#{sender.name}, :#{message}, #{receiver.name}]>"
+      "<ExpectedMessage[#{sender.name}, :#{message}, #{receiver.name}]>"
     end
 
     def to_rspec_matcher_failure_message_line
