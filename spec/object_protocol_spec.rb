@@ -15,7 +15,7 @@ RSpec.describe ObjectProtocol do
 
     let(:protocol) do
       ObjectProtocol.new(:logger, :device) do
-        logger.sends(:<<).to(device)#.with(/message/)
+        logger.sends(:<<).to(device).with("message")
       end.bind(
         device: device,
         logger: Logger.new(device),
