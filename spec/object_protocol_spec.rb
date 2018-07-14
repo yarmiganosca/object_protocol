@@ -1,37 +1,26 @@
 RSpec.describe ObjectProtocol do
-  describe 'a simple logging protocol' do
-    class Logger
-      def initialize(device)
-        @device = device
+  describe "#satisfied_by?" do
+    context 'a simple logging protocol' do
+      let(:device) { [] }
+
+      let(:protocol) do
+        Protocols::Logging.new.bind(
+          device: device,
+          logger: Protocols::Logging::Logger.new(device),
+        )
       end
-      def info(message)
-        @device << message
+
+      it 'is satisfied by a correct execution' do
+        expect(protocol.satisfied_by? { logger.info("message") }).to be true
       end
-      def rotate
-        @device.shift
+
+      it "isn't satisfied by an empty execution" do
+        expect(protocol.satisfied_by? { }).to be false
       end
-    end
-    let(:device) { [] }
 
-    let(:protocol) do
-      ObjectProtocol.new(:logger, :device) do
-        logger.sends(:<<).to(device).with("message")
-      end.bind(
-        device: device,
-        logger: Logger.new(device),
-      )
-    end
-
-    it 'is satisfied by a correct execution' do
-      expect(protocol.satisfied_by? { logger.info("message") }).to be true
-    end
-
-    it "isn't satisfied by an empty execution" do
-      expect(protocol.satisfied_by? { }).to be false
-    end
-
-    it "isn't satisfied by an incorrect execution" do
-      expect(protocol.satisfied_by? { logger.rotate }).to be false
+      it "isn't satisfied by an incorrect execution" do
+        expect(protocol.satisfied_by? { logger.rotate }).to be false
+      end
     end
   end
 end

@@ -6,25 +6,11 @@ RSpec.configure { |config| config.include RSpec::Matchers::FailMatchers }
 
 RSpec.describe "expect(protocol).to be_satisfied_by { ... }" do
   context "with a simple logging procotol" do
-    class Logger
-      def initialize(device)
-        @device = device
-      end
-      def info(message)
-        @device << message
-      end
-      def rotate
-        @device.shift
-      end
-    end
     let(:device) { [] }
-
     let(:protocol) do
-      ObjectProtocol.new(:logger, :device) do
-        logger.sends(:<<).to(device)
-      end.bind(
+      Protocols::Logging.new.bind(
         device: device,
-        logger: Logger.new(device),        
+        logger: Protocols::Logging::Logger.new(device),
       )
     end
 
@@ -40,7 +26,7 @@ RSpec.describe "expect(protocol).to be_satisfied_by { ... }" do
           expect(protocol).to be_satisfied_by {}
         }.to fail_with([
           "expected",
-          "  logger.sends(:<<).to(device)",
+          "  logger.sends(:<<).to(device).with([\"message\"])",
           "to be satisfied by",
           "  <empty execution>",
         ].join("\n"))
@@ -53,7 +39,7 @@ RSpec.describe "expect(protocol).to be_satisfied_by { ... }" do
           expect(protocol).to be_satisfied_by { logger.rotate }
         }.to fail_with([
           "expected",
-          "  logger.sends(:<<).to(device)",
+          "  logger.sends(:<<).to(device).with([\"message\"])",
           "to be satisfied by",
           "  logger.sent(:shift).to(device)",
         ].join("\n"))
