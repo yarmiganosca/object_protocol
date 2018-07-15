@@ -23,4 +23,33 @@ RSpec.describe ObjectProtocol do
       end
     end
   end
+
+  describe "#in_any_order" do
+    let(:endpointA) { Protocols::ParallelRequests::Endpoint.new }
+    let(:endpointB) { Protocols::ParallelRequests::Endpoint.new }
+
+    let(:protocol) do
+      Protocols::ParallelRequests.new.bind(
+        client:    client,
+        endpointA: endpointA,
+        endpointB: endpointB,
+      )
+    end
+
+    context "endpoint A being queried before endpoint B" do
+      let(:client) { Protocols::ParallelRequests::Client.new([endpointA, endpointB]) }
+
+      it 'satisfies the parallel request protocol' do
+        expect(protocol.satisfied_by? { client.request }).to be true
+      end
+    end
+
+    context "endpoint B being queried before endpoint A" do
+      let(:client) { Protocols::ParallelRequests::Client.new([endpointB, endpointA]) }
+
+      it 'satisfies the parallel request protocol' do
+        expect(protocol.satisfied_by? { client.request }).to be true
+      end
+    end
+  end
 end
