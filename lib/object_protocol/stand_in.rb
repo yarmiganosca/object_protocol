@@ -10,7 +10,11 @@ class ObjectProtocol
     end
 
     def sends(message)
-      MessageExpectation.new(sender: self, message: message).tap do |message_expectation|
+      MessageExpectation.new(
+        protocol: protocol,
+        sender:   self,
+        message:  message
+      ).tap do |message_expectation|
         protocol.expectations << message_expectation
       end
     end

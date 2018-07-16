@@ -1,10 +1,11 @@
 class ObjectProtocol
   class MessageExpectation
-    attr_reader :sender, :message, :receiver, :arguments
+    attr_reader :protocol, :sender, :message, :receiver, :arguments
 
-    def initialize(sender:, message:)
-      @sender  = sender
-      @message = message
+    def initialize(protocol:, sender:, message:)
+      @protocol = protocol
+      @sender   = sender
+      @message  = message
 
       @arguments_specified = false
     end
@@ -21,6 +22,10 @@ class ObjectProtocol
       @arguments_specified = true
 
       self
+    end
+
+    def to_satisfiable
+      SatisfiableMessageExpectation.new(protocol: protocol, message_expectation: self)
     end
 
     def inspect

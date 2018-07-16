@@ -11,9 +11,7 @@ class ObjectProtocol
     def to_bool
       execution.call(protocol)
 
-      satisfiable_message_expectations = protocol.expectations.map do |expected_message|
-        SatisfiableMessageExpectation.new(protocol: protocol, message_expectation: expected_message)
-      end
+      satisfiable_message_expectations = protocol.expectations.map(&:to_satisfiable)
 
       execution.messages.each do |sent_message|
         next_message_expectation = satisfiable_message_expectations.first
