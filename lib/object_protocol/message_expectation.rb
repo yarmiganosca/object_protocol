@@ -1,43 +1,55 @@
-require 'forwardable'
-
 class ObjectProtocol
   class MessageExpectation
-    extend Forwardable
+    attr_reader :sender, :message, :receiver, :arguments
 
-    delegate %i(sender receiver message arguments arguments_specified?) => :@expected_message
+    def initialize(sender:, message:)
+      @sender  = sender
+      @message = message
 
-    def initialize(protocol:, expected_message:)
-      @protocol         = protocol
-      @expected_message = expected_message
-
-      @satisfied = false
+      @arguments_specified = false
     end
 
-    def attempt_to_apply_sent_message(sent_message)
-      return if satisfied?
-      return false unless is_sent_message_applicable?(sent_message)
+    def to(receiver)
+      @receiver = receiver
 
-      @satisfied = true
+      self
     end
 
-    def is_sent_message_applicable?(sent_message)
-      return false unless protocol.participant_by_name(sender.name) == sent_message.sender
-      return false unless protocol.participant_by_name(receiver.name) == sent_message.receiver
-      return false unless message == sent_message.name
+    def with(*arguments)
+      @arguments = arguments
+
+      @arguments_specified = true
+
+      self
+    end
+
+    def inspect
+      "<#{self.class.name.split('::').last}[#{sender.name}, :#{message}, #{receiver.name}]>"
+    end
+
+    def to_rspec_matcher_failure_message_line
+      fragment_base = "#{sender.name}.sends(:#{message}).to(#{receiver.name})"
 
       if arguments_specified?
-        return false unless arguments == sent_message.arguments
+        "#{fragment_base}.with(#{arguments})"
+      else
+        fragment_base
       end
-
-      true
     end
 
-    def satisfied?
-      !!@satisfied
+    def ==(other)
+      other.respond_to?(:sender) &&
+        sender == other.sender &&
+        other.respond_to?(:receiver) &&
+        receiver == other.receiver &&
+        other.respond_to?(:message) &&
+        message == other.message &&
+        other.respond_to?(:arguments) &&
+        arguments == other.arguments
     end
 
-    private
-
-    attr_reader :protocol
+    def arguments_specified?
+      @arguments_specified
+    end
   end
 end

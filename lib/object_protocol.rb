@@ -23,8 +23,8 @@ class ObjectProtocol
     SatisfactionAttempt.new(self, &blk).to_bool
   end
 
-  def expected_messages
-    @expected_messages ||= []
+  def expectations
+    @expectations ||= []
   end
 
   def participant_by_name(name)
@@ -40,7 +40,7 @@ class ObjectProtocol
   end
 
   def to_rspec_matcher_failure_message_lines
-    expected_messages.map(&:to_rspec_matcher_failure_message_line)
+    expectations.map(&:to_rspec_matcher_failure_message_line)
   end
 
   private

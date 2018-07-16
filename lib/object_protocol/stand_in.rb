@@ -1,4 +1,4 @@
-require 'object_protocol/expected_message'
+require 'object_protocol/message_expectation'
 
 class ObjectProtocol
   class StandIn
@@ -10,8 +10,8 @@ class ObjectProtocol
     end
 
     def sends(message)
-      ExpectedMessage.new(sender: self, message: message).tap do |expected_message|
-        protocol.expected_messages << expected_message
+      MessageExpectation.new(sender: self, message: message).tap do |message_expectation|
+        protocol.expectations << message_expectation
       end
     end
 

@@ -1,5 +1,5 @@
 require 'object_protocol/execution'
-require 'object_protocol/message_expectation'
+require 'object_protocol/satisfiable_message_expectation'
 
 class ObjectProtocol
   class SatisfactionAttempt
@@ -11,21 +11,21 @@ class ObjectProtocol
     def to_bool
       execution.call(protocol)
 
-      message_expectations = protocol.expected_messages.map do |expected_message|
-        MessageExpectation.new(protocol: protocol, expected_message: expected_message)
+      satisfiable_message_expectations = protocol.expectations.map do |expected_message|
+        SatisfiableMessageExpectation.new(protocol: protocol, message_expectation: expected_message)
       end
 
       execution.messages.each do |sent_message|
-        next_message_expectation = message_expectations.first
+        next_message_expectation = satisfiable_message_expectations.first
 
         next_message_expectation.attempt_to_apply_sent_message(sent_message)
 
         if next_message_expectation.satisfied?
-          message_expectations.shift
+          satisfiable_message_expectations.shift
         end
       end
 
-      message_expectations.empty?
+      satisfiable_message_expectations.empty?
     end
 
     def to_rspec_matcher_failure_message_lines
