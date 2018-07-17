@@ -3,8 +3,8 @@ module Protocols
     def self.new
       ObjectProtocol.new(:client, :endpointA, :endpointB) do
         in_any_order do
-          client.sends(:get).to(serviceA)
-          client.sends(:get).to(serviceB)
+          client.sends(:get).to(endpointA)
+          client.sends(:get).to(endpointB)
         end
       end
     end
@@ -13,7 +13,7 @@ module Protocols
       def request
         endpoints.each(&:get)
       end
-    end    
+    end
 
     class Endpoint
       def get

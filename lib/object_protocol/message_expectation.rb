@@ -1,6 +1,8 @@
+require 'object_protocol/satisfiable_message_expectation'
+
 class ObjectProtocol
   class MessageExpectation
-    attr_reader :protocol, :sender, :message, :receiver, :arguments
+    attr_reader :sender, :message, :receiver, :arguments
 
     def initialize(protocol:, sender:, message:)
       @protocol = protocol
@@ -32,13 +34,13 @@ class ObjectProtocol
       "<#{self.class.name.split('::').last}[#{sender.name}, :#{message}, #{receiver.name}]>"
     end
 
-    def to_rspec_matcher_failure_message_line
+    def to_rspec_matcher_failure_message_lines
       fragment_base = "#{sender.name}.sends(:#{message}).to(#{receiver.name})"
 
       if arguments_specified?
-        "#{fragment_base}.with(#{arguments})"
+        ["#{fragment_base}.with(#{arguments})"]
       else
-        fragment_base
+        [fragment_base]
       end
     end
 
@@ -56,5 +58,9 @@ class ObjectProtocol
     def arguments_specified?
       @arguments_specified
     end
+
+    private
+
+    attr_reader :protocol
   end
 end

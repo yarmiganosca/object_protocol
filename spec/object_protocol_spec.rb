@@ -27,7 +27,6 @@ RSpec.describe ObjectProtocol do
   describe "#in_any_order" do
     let(:endpointA) { Protocols::ParallelRequests::Endpoint.new }
     let(:endpointB) { Protocols::ParallelRequests::Endpoint.new }
-
     let(:protocol) do
       Protocols::ParallelRequests.new.bind(
         client:    client,
@@ -49,6 +48,20 @@ RSpec.describe ObjectProtocol do
 
       it 'satisfies the parallel request protocol' do
         expect(protocol.satisfied_by? { client.request }).to be true
+      end
+    end
+  end
+
+  describe "#to_rspec_matcher_failure_message_lines" do
+    context "with a protocol with an unordered sequence" do
+      let(:protocol) { Protocols::ParallelRequests.new }
+
+      it 'groups the indented expectations under in_any_order' do
+        expect(protocol.to_rspec_matcher_failure_message_lines).to eq [
+          "in_any_order",
+          "  client.sends(:get).to(endpointA)",
+          "  client.sends(:get).to(endpointB)",
+        ]
       end
     end
   end

@@ -18,9 +18,9 @@ class SatisfactionAttemptVerifier
   def failure_message
     [
       "expected",
-      protocol.to_rspec_matcher_failure_message_lines.map(&"  ".method(:+)).flatten,
+      *protocol.to_rspec_matcher_failure_message_lines.flat_map(&"  ".method(:+)),
       "to be satisfied by",
-      attempt.to_rspec_matcher_failure_message_lines.map(&"  ".method(:+)).flatten,
+      *attempt.to_rspec_matcher_failure_message_lines.flat_map(&"  ".method(:+)),
     ].join("\n")
   end
 

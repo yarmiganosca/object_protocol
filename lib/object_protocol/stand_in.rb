@@ -14,9 +14,7 @@ class ObjectProtocol
         protocol: protocol,
         sender:   self,
         message:  message
-      ).tap do |message_expectation|
-        protocol.expectations << message_expectation
-      end
+      ).tap(&protocol.method(:add_expectation))
     end
 
     private

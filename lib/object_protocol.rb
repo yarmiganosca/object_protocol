@@ -1,14 +1,24 @@
 require "object_protocol/version"
 require 'object_protocol/stand_in'
 require 'object_protocol/satisfaction_attempt'
+require 'object_protocol/unordered_message_sequence_expectation'
 
 class ObjectProtocol
   attr_reader :participants_by_name
 
-  def initialize(*participant_names, &protocol)
+  def initialize(*participant_names, &expectations)
     participant_names.each(&method(:define_stand_in))
-    instance_exec(&protocol)
+    instance_exec(&expectations)
     participant_names.each(&method(:undefine_stand_in))
+  end
+
+  def in_any_order(&expectations)
+    unordered_message_sequence_expectation = UnorderedMessageSequenceExpectation.new(protocol: self)
+    self.expectations << unordered_message_sequence_expectation
+
+    expectation_sequence_stack.push(unordered_message_sequence_expectation)
+    instance_exec(&expectations)
+    expectation_sequence_stack.pop
   end
 
   def bind(**participants_by_name)
@@ -21,6 +31,10 @@ class ObjectProtocol
 
   def satisfied_by?(&blk)
     SatisfactionAttempt.new(self, &blk).to_bool
+  end
+
+  def add_expectation(expectation)
+    expectation_sequence_stack.last.expectations << expectation
   end
 
   def expectations
@@ -40,7 +54,7 @@ class ObjectProtocol
   end
 
   def to_rspec_matcher_failure_message_lines
-    expectations.map(&:to_rspec_matcher_failure_message_line)
+    expectations.flat_map(&:to_rspec_matcher_failure_message_lines)
   end
 
   private
@@ -64,5 +78,9 @@ class ObjectProtocol
   def undefine_stand_in(name)
     instance_eval("undef :#{name}")
     remove_instance_variable("@#{name}_stand_in")
+  end
+
+  def expectation_sequence_stack
+    @expectation_sequence_stack ||= [self]
   end
 end

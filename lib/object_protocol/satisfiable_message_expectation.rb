@@ -36,6 +36,10 @@ class ObjectProtocol
       !!@satisfied
     end
 
+    def unsatisfied?
+      !satisfied?
+    end
+
     private
 
     attr_reader :protocol
