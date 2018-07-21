@@ -1,9 +1,7 @@
 ## ROADMAP
 
 * in_order
-* in_any_order
 * doesnt_send (and figure out how it relates to ordering message expectations)
-* add diffs to failure message
 * add color to failure message diffs
 * make failure message diff colors configurable via env vars for acessibility
 
