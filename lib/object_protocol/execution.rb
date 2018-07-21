@@ -62,13 +62,23 @@ class ObjectProtocol
                             args
                           end
 
-              sent_message = SentMessage.new(
-                sender:   sender,
-                receiver: self,
-                name:     method_name,
-              )
+              if method_name == :method_missing
+                sent_message = SentMessage.new(
+                  sender:   sender,
+                  receiver: self,
+                  name:     arguments.first
+                )
 
-              sent_message.with(arguments) if arguments.any?
+                sent_message.with(arguments[1..-1]) if arguments.size > 1
+              else
+                sent_message = SentMessage.new(
+                  sender:   sender,
+                  receiver: self,
+                  name:     method_name
+                )
+
+                sent_message.with(arguments) if arguments.any?
+              end
 
               execution.messages << sent_message
             end

@@ -85,6 +85,16 @@ Ok, but what was all that?
 
 Well, we created a protocol that we can use as documentation, and tested it with a lot less fanfare and boilerplate than you'd need with traditional message expectation tests!
 
+In real life, you'd use an actual object defined in your codebase in place of a fake logger, but you'd probably inject fake or stub collaborator objects to avoid side-effects.
+
+== How Does This All Work, Anyway?
+
+During an execution (the block passed to `satisfied_by`), we spy on every public method (except `#__send__` and `#object_id` because of the warnings) defined on each bound participant object. We record the message, the sender, the receiver, and the arguments (if any) that were passed. Then, we invoke the actual method behavior defined by that object.
+
+=== Interaction with `#method_missing`
+
+`#method_missing` is rarely a message that is sent from one object to another. We currently record the name of the missing method as the "sent message" and record any arguments beyond that message name, as well as the sender and receiver.
+
 == Installation
 
 Add this line to your application's Gemfile:
