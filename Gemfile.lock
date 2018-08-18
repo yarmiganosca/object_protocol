@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    object_protocol (0.1.0)
+    object_protocol (0.2.0)
       binding_of_caller
 
 GEM
