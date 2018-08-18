@@ -2,6 +2,8 @@
 
 * in_order
 * doesnt_send (and figure out how it relates to ordering message expectations)
+  * doesnt_send vs never_sends
+  * doesnt_sent.here vs doesnt_send.at_all
 * add color to failure message diffs
 * make failure message diff colors configurable via env vars for acessibility
 
