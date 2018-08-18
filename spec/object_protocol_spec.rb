@@ -24,6 +24,36 @@ RSpec.describe ObjectProtocol do
     end
   end
 
+  describe '#bind' do
+    let(:device)   { [] }
+    let(:logger)   { Protocols::Logging::Logger.new(device) }
+    let(:protocol) { Protocols::Logging.new }
+
+    context 'not all collaborators are provided' do
+      it 'raises an exception informing you logger was not provided' do
+        expect { protocol.bind(device: device) }.to raise_error(/logger/)
+      end
+    end
+
+    context 'undeclared collaborators are provided' do
+      it 'raises an exception informing you x was provided' do
+        expect { protocol.bind(device: device, logger: logger, x: 4) }.to raise_error(/x/)
+      end
+    end
+
+    context 'not all collaborators are provided AND undeclared collaborators are provided' do
+      let(:protocol_binding) { protocol.bind(device: device, x: 4) }
+
+      it 'raises an exception informing you logger was not provided' do
+        expect { protocol_binding }.to raise_error(/logger/)
+      end
+
+      it 'raises an exception informing you x was provided' do
+        expect { protocol_binding }.to raise_error(/x/)
+      end
+    end
+  end
+
   describe "#in_any_order" do
     let(:endpointA) { Protocols::ParallelRequests::Endpoint.new }
     let(:endpointB) { Protocols::ParallelRequests::Endpoint.new }

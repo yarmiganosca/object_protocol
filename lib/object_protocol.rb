@@ -7,6 +7,8 @@ class ObjectProtocol
   attr_reader :participants_by_name
 
   def initialize(*participant_names, &expectations)
+    @participant_names = participant_names.map(&:to_sym)
+
     participant_names.each(&method(:define_stand_in))
     instance_exec(&expectations)
     participant_names.each(&method(:undefine_stand_in))
@@ -22,11 +24,30 @@ class ObjectProtocol
   end
 
   def bind(**participants_by_name)
-    @participants_by_name = participants_by_name
+    bind_attempt_participant_names = participants_by_name.keys.map(&:to_sym)
 
-    @participants_by_name.each(&method(:define_participant))
+    missing_participant_names = participant_names - bind_attempt_participant_names
+    extra_participant_names   = bind_attempt_participant_names - participant_names
 
-    self
+    if missing_participant_names.empty? && extra_participant_names.empty?
+      @participants_by_name = participants_by_name
+
+      @participants_by_name.each(&method(:define_participant))
+
+      self
+    else
+      key_error_message_parts = []
+
+      if missing_participant_names.any?
+        key_error_message_parts << "These keys are required by this protocol but weren't provided: #{missing_participant_names.join(', ')}"
+      end
+
+      if extra_participant_names.any?
+        key_error_message_parts << "These keys aren't used in this protocol but were provided: #{extra_participant_names.join(', ')}"
+      end
+
+      raise KeyError, key_error_message_parts.join("\n          ") # makes the second line indent correctly
+    end
   end
 
   def satisfied_by?(&blk)
@@ -58,6 +79,8 @@ class ObjectProtocol
   end
 
   private
+
+  attr_reader :participant_names
 
   def define_participant(name, participant)
     instance_variable_set("@#{name}_participant", participant)
