@@ -40,6 +40,16 @@ class ObjectProtocol
       !satisfied?
     end
 
+    def partially_but_not_fully_satisfied?
+      false
+    end
+
+    def inspect
+      status = satisfied? ? "(satisfied)" : "(unsatisfied)"
+
+      "#{sender.name}, :#{message}, #{receiver.name} #{status}"
+    end
+
     private
 
     attr_reader :protocol

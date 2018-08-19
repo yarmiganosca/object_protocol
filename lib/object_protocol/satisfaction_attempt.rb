@@ -10,19 +10,23 @@ class ObjectProtocol
     def to_bool
       execution.call(protocol)
 
-      satisfiable_expectations = protocol.expectations.map(&:to_satisfiable)
-
       execution.messages.each do |sent_message|
-        next_expectation = satisfiable_expectations.first
+        break if satisfied?
 
-        next_expectation.attempt_to_apply_sent_message(sent_message)
+        next_unsatisfied_expectation = satisfiable_expectations.find(&:unsatisfied?)
 
-        if next_expectation.satisfied?
-          satisfiable_expectations.shift
-        end
+        next_unsatisfied_expectation.attempt_to_apply_sent_message(sent_message)
       end
 
-      satisfiable_expectations.empty?
+      satisfied?
+    end
+
+    def satisfied?
+      satisfiable_expectations.all?(&:satisfied?)
+    end
+
+    def unsatisfied?
+      !satisfied?
     end
 
     def to_rspec_matcher_failure_message_lines
@@ -44,6 +48,10 @@ class ObjectProtocol
     private
 
     attr_reader :protocol, :blk
+
+    def satisfiable_expectations
+      @satisfiable_expectations ||= protocol.expectations.map(&:to_satisfiable)
+    end
 
     def execution
       @execution ||= Execution.new(*protocol.participants, &blk)

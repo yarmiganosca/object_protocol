@@ -82,6 +82,58 @@ RSpec.describe ObjectProtocol do
     end
   end
 
+  describe "#in_order nested in an #in_any_order" do
+    let(:protocol) do
+      Protocols::CriticalSection.new.bind(
+        lock:     lock,
+        thread_a: thread_a,
+        thread_b: thread_b,
+      )
+    end
+    let(:lock)     { Protocols::CriticalSection::Lock.new }
+    let(:thread_a) { Protocols::CriticalSection::Thread.new(lock: lock) }
+    let(:thread_b) { Protocols::CriticalSection::Thread.new(lock: lock) }
+
+    context "thread_a acquires; thread_a releases; thread_b acquires; thread_b releases" do
+      it "satisfies the protocol" do
+        expect(
+          protocol.satisfied_by? do
+            thread_a.acquire_lock
+            thread_a.release_lock
+            thread_b.acquire_lock
+            thread_b.release_lock
+          end
+        ).to be true
+      end
+    end
+
+    context "thread_b acquires; thread_b releases; thread_a acquires; thread_a releases" do
+      it "satisfies the protocol" do
+        expect(
+          protocol.satisfied_by? do
+            thread_b.acquire_lock
+            thread_b.release_lock
+            thread_a.acquire_lock
+            thread_a.release_lock
+          end
+        ).to be true
+      end
+    end
+
+    context "thread_a acquires; thread_b acquires; thread_a releases; thread_b releases" do
+      it "doesn't satisfy the protocol" do
+        expect(
+          protocol.satisfied_by? do
+            thread_a.acquire_lock
+            thread_b.acquire_lock
+            thread_a.release_lock
+            thread_b.release_lock
+          end
+        ).to be false
+      end
+    end
+  end
+
   describe "#to_rspec_matcher_failure_message_lines" do
     context "with a protocol with an unordered sequence" do
       let(:protocol) { Protocols::ParallelRequests.new }

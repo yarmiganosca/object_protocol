@@ -1,6 +1,7 @@
 require "object_protocol/version"
 require 'object_protocol/stand_in'
 require 'object_protocol/satisfaction_attempt'
+require 'object_protocol/ordered_message_sequence_expectation'
 require 'object_protocol/unordered_message_sequence_expectation'
 
 class ObjectProtocol
@@ -14,9 +15,18 @@ class ObjectProtocol
     participant_names.each(&method(:undefine_stand_in))
   end
 
+  def in_order(&expectations)
+    ordered_message_sequence_expectation = OrderedMessageSequenceExpectation.new(protocol: self)
+    add_expectation(ordered_message_sequence_expectation)
+
+    expectation_sequence_stack.push(ordered_message_sequence_expectation)
+    instance_exec(&expectations)
+    expectation_sequence_stack.pop
+  end
+
   def in_any_order(&expectations)
     unordered_message_sequence_expectation = UnorderedMessageSequenceExpectation.new(protocol: self)
-    self.expectations << unordered_message_sequence_expectation
+    add_expectation(unordered_message_sequence_expectation)
 
     expectation_sequence_stack.push(unordered_message_sequence_expectation)
     instance_exec(&expectations)
