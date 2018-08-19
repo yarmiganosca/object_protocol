@@ -1,6 +1,6 @@
 ## ROADMAP
 
-* in_order
+* make sure in_any_order nests correctly inside in_any_order
 * doesnt_send (and figure out how it relates to ordering message expectations)
   * doesnt_send vs never_sends
   * doesnt_sent.here vs doesnt_send.at_all
